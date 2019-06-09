@@ -76,27 +76,50 @@ const Card = props => {
     const playerInfoElements = () => {
         return (
             editing ?
-                <div>
-                    <input placeholder='Position' type="text" name="position" value={playerInfo.position} onChange={(e) => editPlayer(e)} />
-                    <input placeholder='College' type="text" name="college" value={playerInfo.college} onChange={(e) => editPlayer(e)} />
-                    <select name="team" value={playerInfo.team} onChange={(e) => editPlayer(e)}>
-                        {props.teams.map((team) => {
-                            return <option key={team.id} value={team.id}>{team.name}</option>
-                        })}
-                    </select>
+                <div style={styles.infoElements}>
+                    <div style={styles.infoGroup}>
+                        <p  style={styles.infoItem}><b>Position: </b></p>
+                        <input style={styles.infoItem} placeholder='Position' type="text" name="position" value={playerInfo.position} onChange={(e) => editPlayer(e)} />
+                    </div>
+                    <div style={styles.infoGroup}>
+                        <p  style={styles.infoItem}><b>College: </b></p>
+                       <input placeholder='College' type="text" name="college" value={playerInfo.college} onChange={(e) => editPlayer(e)} />
+                    </div>
+                    <div style={styles.infoGroup}>
+                        <p style={styles.infoItem}><b>Team: </b></p>
+                        <select  style={styles.infoItem} name="team" value={playerInfo.team} onChange={(e) => editPlayer(e)}>
+                            {props.teams.map((team) => {
+                                return <option key={team.id} value={team.id}>{team.name}</option>
+                            })}
+                      </select>
+                    </div>
                 </div> :
-                <div>
-                    <div>{playerInfo.position}</div>
-                    <div>{playerInfo.college}</div>
-                    <div>{teamName}</div>
+                <div style={styles.infoElements}>
+                    <div style={styles.infoGroup}>
+                        <p style={styles.infoItem}><b>Position: </b></p>
+                        <p style={styles.infoItem}>{playerInfo.position}</p>
+                    </div>
+                        <div style={styles.infoGroup}>
+                        <p style={styles.infoItem}><b>College: </b></p>
+                        <p style={styles.infoItem}>{playerInfo.college}</p>
+                    </div>
+                    <div style={styles.infoGroup}>
+                        <p style={styles.infoItem}><b>Team: </b></p>
+                        <p style={styles.infoItem}>{teamName}</p>
+                    </div>
                 </div>
         );
     };
 
     return (
         <div style={{ ...styles.container, ...props.style }}>
-            <input type="checkbox" checked={favorite} onChange={() => updateFavorite()}/>
-            {controlButtons()}
+            <div style={styles.header}>
+                {controlButtons()}
+                <span>
+                    <label>Favorite</label>
+                    <input type="checkbox" checked={favorite} onChange={() => updateFavorite()}/>
+                </span>
+            </div>
             {editing ?
                 <input placeholder='Name' name="name" type="text" value={playerInfo.name} onChange={(e) => editPlayer(e)} />
                 :

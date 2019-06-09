@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import Search from "./Search";
 import Card from "./Card";
 import styles from "./styles";
@@ -157,23 +158,44 @@ const Main = (props) => {
                 return fav.id === player.id;
             });
             const favorite = filteredFavorites.length > 0;
-            console.log('favorites', favorite);
-            // tempPlayer.image = ENDPOINT + player.image;
             return <Card key={player.name} player={player} teams={storedTeams} savePlayer={editPlayer} updateFavorites={updateFavorites} favorite={favorite}></Card>
         });
     }
 
+    const favoriteList = () => {
+        return favorites.map((player) => {
+            return <Card key={player.name} player={player} teams={storedTeams} savePlayer={editPlayer} updateFavorites={updateFavorites} favorite={true}></Card>
+        });
+    };
+
     return (
-        <div style={{ ...styles.container, ...props.style }}>
-            <div style={styles.title}>NBA Interview</div>
-            <p>{`Favorite Count: ${favoriteCount}`}</p>
-            <Search style={styles.search} search={search} />
-            <div>
-                <button onClick={previousPage} disabled={pageNum <= 1}>Previous</button>
-                <button onClick={nextPage} disabled={pageNum * PLAYER_LIMIT >= totalResults}>Next</button>
+        <Router>
+            <div style={{ ...styles.container, ...props.style }}>
+                <Route path="/" exact render={(props) => 
+                    <div style={styles.container}>
+                        <div style={styles.title}>NBA Interview</div>
+                        <Link to="/favorites" onClick={() => fetchFavorites()}>{`Favorite Count: ${favoriteCount}`}</Link>
+                        <Search style={styles.search} search={search} />
+                        <div>
+                            <button onClick={previousPage} disabled={pageNum <= 1}>Previous</button>
+                            <button onClick={nextPage} disabled={pageNum * PLAYER_LIMIT >= totalResults}>Next</button>
+                        </div>
+                        <div style={styles.cardList}>
+                            {cardList()}
+                        </div>
+                    </div>
+                }/>
+                <Route path="/favorites" exact render={(props) => 
+                    <div>
+                        <div style={styles.title}>Favorites</div>
+                        <Link to="/" onClick={() => fetchFavorites()}>Back</Link>
+                        <div style={{... styles.cardList, ...styles.smallList}}>
+                            {favoriteList()}
+                        </div>
+                    </div>
+                }/>
             </div>
-            {cardList()}
-        </div>
+        </Router>
     );
 }
 

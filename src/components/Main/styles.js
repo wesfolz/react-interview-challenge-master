@@ -4,7 +4,20 @@ export default {
         paddingBottom: "32px",
         textAlign: "center"
     },
+    container: {
+        display: 'flex',
+        'flex-direction': 'column',
+        'align-items': 'center'
+    },
     search: {
-        paddingBottom: "16px"
+        padding: "16px 0px"
+    },
+    cardList: {
+        display: 'flex',
+        'flex-wrap': 'wrap',
+        'justify-content': 'center'
+    },
+    smallList: {
+        transform: 'scale(0.75)'
     }
 };
