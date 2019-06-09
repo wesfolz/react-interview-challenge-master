@@ -4,16 +4,35 @@ import Card from "./Card";
 import styles from "./styles";
 
 const ENDPOINT = "http://localhost:3008/";
+const PLAYER_LIMIT = 10
 
 const Main = (props) => {
-
     const [players, setPlayers] = useState([]);
+    const [storedTeams, setStoredTeams] = useState([]);
+    const [pageNum, setPageNum] = useState(1);
+    const [searchText, setSearchText] = useState('');
+    const [totalResults, setTotalResults] = useState(0);
 
-    const fetchPlayers = (teams) => {
-        console.log(teams);
-        fetch(ENDPOINT + 'players')
+    const fetchPlayers = (teams, page, searchText) => {
+        let url = ENDPOINT + 'players?';
+        if(searchText) {
+            url += 'q=' + searchText + "&";
+        }
+        url += '_page=' + page + '&_limit=' + PLAYER_LIMIT;
+        console.log(url);
+        fetch(url)
         .then(res => {
-            return res.ok ? res.json(): Promise.reject(res);
+            if(res.ok) {
+                res.headers.forEach(function(val, key) { 
+                    console.log(key + ' -> ' + val); 
+                    if(key === 'x-total-count') {
+                        setTotalResults(val);
+                    }
+                });
+                return res.json();
+            } else {
+                return Promise.reject(res)
+            }
         })
         .then(players => initializePlayers(teams, players))
         .catch(error => console.log(error));
@@ -29,13 +48,12 @@ const Main = (props) => {
     };
 
     const initializeTeams = (teams) => {
+        setStoredTeams(teams);
         fetchPlayers(teams);
     };
 
     const initializePlayers = (teams, players) => {
-        console.log('teams', teams);
-        console.log('players', players);
-
+        console.log(players);
 
         setPlayers(players.map((player) => {
             let filteredTeams = teams.filter(t => {
@@ -55,12 +73,26 @@ const Main = (props) => {
         }));
     };
 
+    const previousPage = () => {
+        fetchPlayers(storedTeams, pageNum - 1, searchText);
+        setPageNum(pageNum - 1);
+    };
+
+    const nextPage = () => {
+        fetchPlayers(storedTeams, pageNum + 1, searchText);
+        setPageNum(pageNum + 1);
+    };
+
+    const search = (text) => {
+        setSearchText(text);
+        fetchPlayers(storedTeams, pageNum, text);
+    };
+
     useEffect(() => {
         fetchTeams();
     }, []);
 
     const cardList = () => {
-        console.log(players);
         return players.map((player) => {
             let tempPlayer = {...player};
             tempPlayer.image = ENDPOINT + player.image;
@@ -71,7 +103,11 @@ const Main = (props) => {
     return (
         <div style={{ ...styles.container, ...props.style }}>
             <div style={styles.title}>NBA Interview</div>
-            <Search style={styles.search} />
+            <Search style={styles.search} search={search}/>
+            <div>
+                <button onClick={previousPage} disabled={pageNum <= 1}>Previous</button>
+                <button onClick={nextPage} disabled={pageNum*PLAYER_LIMIT >= totalResults}>Next</button>
+            </div>
             {cardList()}
         </div>
     );
