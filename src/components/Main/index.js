@@ -121,18 +121,18 @@ const Main = (props) => {
     };
 
     const previousPage = () => {
-        fetchPlayers(storedTeams, pageNum - 1, searchText);
+        fetchPlayers(pageNum - 1, searchText);
         setPageNum(pageNum - 1);
     };
 
     const nextPage = () => {
-        fetchPlayers(storedTeams, pageNum + 1, searchText);
+        fetchPlayers(pageNum + 1, searchText);
         setPageNum(pageNum + 1);
     };
 
     const search = (text) => {
         setSearchText(text);
-        fetchPlayers(storedTeams, pageNum, text);
+        fetchPlayers(pageNum, text);
     };
 
     const updateFavorites = (player, favorite) => {
