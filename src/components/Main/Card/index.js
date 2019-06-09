@@ -8,9 +8,9 @@ const Card = props => {
     const [playerInfo, setPlayerInfo] = useState(props.player);
     const [editing, setEditing] = useState(false);
     const [teamName, setTeamName] = useState(null);
+    const [favorite, setFavorite] = useState(props.favorite != null ? props.favorite : false);
 
     const findTeamName = () => {
-        console.log('findTeamName');
         const filteredTeam = props.teams.filter(t => {
             return t.id === playerInfo.team
         });
@@ -23,6 +23,7 @@ const Card = props => {
     };
 
     useEffect(() => {
+        console.log(playerInfo.name, 'favorite', favorite);
         findTeamName();
     }, [playerInfo]);
 
@@ -64,6 +65,14 @@ const Card = props => {
         console.log(player);
     };
 
+    const updateFavorite = () => {
+        console.log('updateFavorite');
+        if(props.updateFavorites) {
+            props.updateFavorites(playerInfo, !favorite);
+        }
+        setFavorite(!favorite);
+    };
+
     const playerInfoElements = () => {
         return (
             editing ?
@@ -86,6 +95,7 @@ const Card = props => {
 
     return (
         <div style={{ ...styles.container, ...props.style }}>
+            <input type="checkbox" checked={favorite} onChange={() => updateFavorite()}/>
             {controlButtons()}
             {editing ?
                 <input placeholder='Name' name="name" type="text" value={playerInfo.name} onChange={(e) => editPlayer(e)} />
