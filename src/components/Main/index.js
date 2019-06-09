@@ -13,38 +13,53 @@ const Main = (props) => {
     const [searchText, setSearchText] = useState('');
     const [totalResults, setTotalResults] = useState(0);
 
+    const editPlayer = (player) => {
+        const url = ENDPOINT + 'players/' + player.id;
+        fetch(url, {
+            method: "PATCH",
+            body: JSON.stringify(player),
+            headers: {
+                "Content-Type": "application/json"
+            },
+        }).then(res => {
+            return res.ok ? res.text() : Promise.reject(res);
+        })
+        .then(responseText => console.log(responseText))
+        .catch(error => console.log(error));
+    };
+
     const fetchPlayers = (teams, page, searchText) => {
         let url = ENDPOINT + 'players?';
-        if(searchText) {
+        if (searchText) {
             url += 'q=' + searchText + "&";
         }
         url += '_page=' + page + '&_limit=' + PLAYER_LIMIT;
         console.log(url);
         fetch(url)
-        .then(res => {
-            if(res.ok) {
-                res.headers.forEach(function(val, key) { 
-                    console.log(key + ' -> ' + val); 
-                    if(key === 'x-total-count') {
-                        setTotalResults(val);
-                    }
-                });
-                return res.json();
-            } else {
-                return Promise.reject(res)
-            }
-        })
-        .then(players => initializePlayers(teams, players))
-        .catch(error => console.log(error));
+            .then(res => {
+                if (res.ok) {
+                    res.headers.forEach(function (val, key) {
+                        console.log(key + ' -> ' + val);
+                        if (key === 'x-total-count') {
+                            setTotalResults(val);
+                        }
+                    });
+                    return res.json();
+                } else {
+                    return Promise.reject(res)
+                }
+            })
+            .then(players => initializePlayers(teams, players))
+            .catch(error => console.log(error));
     };
 
     const fetchTeams = () => {
         fetch(ENDPOINT + 'teams')
-        .then(res => {
-            return res.ok ? res.json(): Promise.reject(res);
-        })
-        .then(teams => initializeTeams(teams))
-        .catch(error => console.log(error));
+            .then(res => {
+                return res.ok ? res.json() : Promise.reject(res);
+            })
+            .then(teams => initializeTeams(teams))
+            .catch(error => console.log(error));
     };
 
     const initializeTeams = (teams) => {
@@ -53,24 +68,7 @@ const Main = (props) => {
     };
 
     const initializePlayers = (teams, players) => {
-        console.log(players);
-
-        setPlayers(players.map((player) => {
-            let filteredTeams = teams.filter(t => {
-                return t.id === player.team
-            })
-            let team = null;
-            if(filteredTeams.length > 0) {
-                team = filteredTeams[0];
-            }
-
-            if(team != null) {
-                player.teamName = team.name;
-            } else {
-                player.teamName = 'No Team';
-            }
-            return player;
-        }));
+        setPlayers(players);
     };
 
     const previousPage = () => {
@@ -94,19 +92,19 @@ const Main = (props) => {
 
     const cardList = () => {
         return players.map((player) => {
-            let tempPlayer = {...player};
-            tempPlayer.image = ENDPOINT + player.image;
-            return <Card key={tempPlayer.name} player={tempPlayer}></Card>
+            let tempPlayer = { ...player };
+            // tempPlayer.image = ENDPOINT + player.image;
+            return <Card key={tempPlayer.name} player={tempPlayer} teams={storedTeams} savePlayer={editPlayer}></Card>
         });
     }
 
     return (
         <div style={{ ...styles.container, ...props.style }}>
             <div style={styles.title}>NBA Interview</div>
-            <Search style={styles.search} search={search}/>
+            <Search style={styles.search} search={search} />
             <div>
                 <button onClick={previousPage} disabled={pageNum <= 1}>Previous</button>
-                <button onClick={nextPage} disabled={pageNum*PLAYER_LIMIT >= totalResults}>Next</button>
+                <button onClick={nextPage} disabled={pageNum * PLAYER_LIMIT >= totalResults}>Next</button>
             </div>
             {cardList()}
         </div>
